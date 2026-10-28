@@ -6,8 +6,10 @@ import library_management.Entity.BorrowingTransaction;
 import library_management.Entity.TransactionStatus;
 import library_management.Repository.BTRepository;
 import library_management.Repository.BookRepository;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,9 @@ public class BorrowingTransactionService {
     private final BTRepository btRepository;
     private final BookRepository bookRepository;
 
+    @Value("${borrower.transaction.limit:5}")
+    private int transactionLimit;
+
     public BorrowingTransactionService(
             BTRepository btRepository,
             BookRepository bookRepository) {
@@ -31,10 +36,30 @@ public class BorrowingTransactionService {
     }
 
     @Transactional
-    public BorrowingTransaction addTransaction(BorrowingTransaction transaction) {
+    public BorrowingTransaction addTransaction(
+            BorrowingTransaction transaction) {
+
         Long bookId = transaction.getBook().getId();
+        Long borrowerId = transaction.getBorrower().getId();
 
         logger.info("Creating borrowing transaction for book ID: {}", bookId);
+
+        // Check the borrower's existing transaction count.
+        long transactionCount =
+                btRepository.countByBorrower_Id(borrowerId);
+
+        if (transactionCount >= transactionLimit) {
+            logger.warn(
+                    "Borrower {} has reached the transaction limit of {}",
+                    borrowerId,
+                    transactionLimit
+            );
+
+            throw new IllegalStateException(
+                    "Borrower has reached the maximum limit of "
+                            + transactionLimit + " transactions"
+            );
+        }
 
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> {
@@ -57,8 +82,10 @@ public class BorrowingTransactionService {
         BorrowingTransaction savedTransaction =
                 btRepository.save(transaction);
 
-        logger.info("Borrowing transaction created successfully with ID: {}",
-                savedTransaction.getId());
+        logger.info(
+                "Borrowing transaction created successfully with ID: {}",
+                savedTransaction.getId()
+        );
 
         return savedTransaction;
     }
@@ -132,6 +159,9 @@ public class BorrowingTransactionService {
 
         btRepository.delete(transaction);
 
-        logger.info("Borrowing transaction deleted successfully with ID: {}", id);
+        logger.info(
+                "Borrowing transaction deleted successfully with ID: {}",
+                id
+        );
     }
 }

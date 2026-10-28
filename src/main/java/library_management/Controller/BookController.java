@@ -28,14 +28,14 @@ public class BookController {
     @PostMapping
     public BookDTO addBook(@Valid @RequestBody BookDTO dto) {
         Book book = new Book();
+
         book.setTitle(dto.getTitle());
         book.setIsbn(dto.getIsbn());
         book.setCategory(Category.valueOf(dto.getCategory()));
 
-        if (dto.getAuthorId() != null) {
-            book.setAuthor(
-                    authorService.getAuthorById(dto.getAuthorId()));
-        }
+        book.setAvailable(
+                dto.getAvailable() == null || dto.getAvailable()
+        );
 
         return BookMapper.toDTO(bookService.addBook(book));
     }
@@ -54,16 +54,24 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
-    public BookDTO updateBook(@PathVariable Long id,
-                              @Valid @RequestBody BookDTO dto) {
+    public BookDTO updateBook(
+            @PathVariable Long id,
+            @Valid @RequestBody BookDTO dto) {
+
         Book book = new Book();
+
         book.setTitle(dto.getTitle());
         book.setIsbn(dto.getIsbn());
         book.setCategory(Category.valueOf(dto.getCategory()));
 
+        book.setAvailable(
+                dto.getAvailable() == null || dto.getAvailable()
+        );
+
         if (dto.getAuthorId() != null) {
             book.setAuthor(
-                    authorService.getAuthorById(dto.getAuthorId()));
+                    authorService.getAuthorById(dto.getAuthorId())
+            );
         }
 
         return BookMapper.toDTO(bookService.updateBook(id, book));

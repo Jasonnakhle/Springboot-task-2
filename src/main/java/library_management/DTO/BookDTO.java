@@ -2,24 +2,27 @@
 package library_management.DTO;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 public class BookDTO {
 
     private Long id;
 
-    @NotBlank
+    @NotBlank(message = "Title is required")
     private String title;
 
-    @NotBlank
+    @NotBlank(message = "ISBN is required")
     private String isbn;
 
-    @NotBlank
+    @NotBlank(message = "Category is required")
+    @Pattern(
+            regexp = "FICTION|NON_FICTION|SCIENCE|HISTORY|TECHNOLOGY|OTHER",
+            message = "Category must be FICTION, NON_FICTION, SCIENCE, HISTORY, TECHNOLOGY, or OTHER"
+    )
     private String category;
 
     private Boolean available;
 
-    @NotNull
     private Long authorId;
 
     public BookDTO() {
@@ -35,16 +38,51 @@ public class BookDTO {
         this.authorId = authorId;
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    public String getIsbn() { return isbn; }
-    public void setIsbn(String isbn) { this.isbn = isbn; }
-    public String getCategory() { return category; }
-    public void setCategory(String category) { this.category = category; }
-    public boolean isAvailable() { return available; }
-    public void setAvailable(boolean available) { this.available = available; }
-    public Long getAuthorId() { return authorId; }
-    public void setAuthorId(Long authorId) { this.authorId = authorId; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public Boolean getAvailable() {
+        return available;
+    }
+
+    public void setAvailable(Boolean available) {
+        this.available = available;
+    }
+
+    public Long getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(Long authorId) {
+        this.authorId = authorId;
+    }
 }
